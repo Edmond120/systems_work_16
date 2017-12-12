@@ -11,7 +11,15 @@
   returns the file descriptor for the upstream pipe.
   =========================*/
 int server_handshake(int *to_client) {
-  return 0;
+  if(!mkfifo("s",0666)){
+		printf("server: made fifo\n");
+	}
+	else{
+		printf("server: make fifo error\n");
+		return -1;
+	}
+	
+  	return 0;
 }
 
 
@@ -25,5 +33,6 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
+  printf("connecting to server\n");
   return 0;
 }

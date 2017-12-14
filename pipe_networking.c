@@ -45,7 +45,9 @@ int client_handshake(int *to_server) {
 	printf("client: creating private fifo\n");
 	mkfifo("ss", 0666);
   printf("client: connecting to server\n");
-  int fd = open("s",O_WRONLY,0666);
+  while(access("s",F_OK)){
+	}
+	int fd = open("s",O_WRONLY,0666);
 	char * name = "ss";
 	write(fd,name,sizeof(char) * 3);
 	int buffer;

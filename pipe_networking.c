@@ -19,9 +19,9 @@ int server_handshake(int *to_client) {
 		return -1;
 	}
 	printf("server: waiting for connection\n");
-	int fd = open("s",O_RDONLY,0666);
+	int fd = open("s", O_RDONLY);
 	char name[50];
-	read(fd,name,sizeof(int));
+	read(fd,name,sizeof(char) * 3);
 	printf("server: connection established, deleting fifo\n");
 	remove("s");
 	printf("server: connecting to client\n");
@@ -43,13 +43,13 @@ int server_handshake(int *to_client) {
   =========================*/
 int client_handshake(int *to_server) {
 	printf("client: creating private fifo\n");
-	mkfifo("ss",0666);
-	int private_fifo = open("ss",O_RDONLY,0666);
-  	printf("client: connecting to server\n");
-  	int fd = open("s",O_WRONLY,0666);
+	mkfifo("ss", 0666);
+  printf("client: connecting to server\n");
+  int fd = open("s",O_WRONLY,0666);
 	char * name = "ss";
 	write(fd,name,sizeof(char) * 3);
 	int buffer;
+  int private_fifo = open("ss", O_RDONLY, 0666);
 	printf("client: waiting for server to respond\n");
 	read(private_fifo,&buffer,sizeof(int));
 	printf("client: buffer = %d\n",buffer);

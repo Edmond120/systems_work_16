@@ -7,4 +7,13 @@ int main() {
   int from_client;
 
   from_client = server_handshake( &to_client );
+  char returned[200];
+  read(from_client, returned, sizeof(returned));
+  while(1){
+  	char returned[200];
+  	read(from_client, returned, sizeof(returned));
+  	printf("Server: recieved %s", returned);
+  	returned[0] = 'A';
+  	write(to_client, returned, sizeof(returned));
+  }
 }

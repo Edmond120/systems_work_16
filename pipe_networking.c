@@ -20,14 +20,16 @@ int server_handshake(int *to_client) {
 	}
 	printf("server: waiting for connection\n");
 	int fd = open("s", O_RDONLY);
-	char name[50];
-	read(fd,name,sizeof(char) * 3);
+	char name[HANDSHAKE_BUFFER_SIZE];
+	read(fd,name,HANDSHAKE_BUFFER_SIZE);
 	printf("server: connection established, deleting fifo\n");
 	remove("s");
 	printf("server: connecting to client\n");
     *to_client = open(name,O_WRONLY,0666);
-	int buffer = 1;
-	write(*to_client,&buffer,sizeof(int));
+	char* buffer = ACK;
+	write(*to_client,buffer,HANDSHAKE_BUFFER_SIZE);
+	char returned[HANDSHAKE_BUFFER_SIZE];
+	//read(fd, returned, HANDSHAKE_BUFFER_SIZE); 
   	return fd;
 }
 
@@ -49,17 +51,17 @@ int client_handshake(int *to_server) {
 	}
 	int fd = open("s",O_WRONLY,0666);
 	char * name = "ss";
-	write(fd,name,sizeof(char) * 3);
-	int buffer;
+	write(fd,name,HANDSHAKE_BUFFER_SIZE);
+	char buffer[HANDSHAKE_BUFFER_SIZE];
   int private_fifo = open("ss", O_RDONLY, 0666);
 	printf("client: waiting for server to respond\n");
-	read(private_fifo,&buffer,sizeof(int));
-	printf("client: buffer = %d\n",buffer);
-	if(buffer == 1){
+	read(private_fifo, buffer, HANDSHAKE_BUFFER_SIZE);
+	printf("client: buffer = %s\n",buffer);
+	if(!strcmp(buffer, ACK)){
 		printf("client: message recived\n");
 		remove("ss");
 		printf("client: send message to server\n");
-		write(fd,&buffer,sizeof(int));
+		write(fd,buffer,HANDSHAKE_BUFFER_SIZE);
 	}
 	*to_server = fd;
  	return private_fifo;

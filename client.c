@@ -10,10 +10,10 @@ int main() {
   from_server = client_handshake( &to_server );
   while(1){
   	printf("Enter Some Text: ");
-  	char line[200];
+  	char line[BUFFER_SIZE];
   	fgets(line, sizeof(line), stdin);
   	write(to_server, line, sizeof(line));
-  	char returned[200];
+  	char returned[BUFFER_SIZE];
   	read(from_server, returned, sizeof(returned));
   	printf("Returned: %s\n", returned);
   }

@@ -10,6 +10,14 @@
 
   returns the file descriptor for the upstream pipe.
   =========================*/
+int print_error(int result){
+  if(result == -1){
+    printf("Error: %s\n", strerror(errno));
+    exit(0);
+  }
+  return result;
+}
+
 int server_handshake(int *to_client) {
  	if(!mkfifo("s",0666)){
 		printf("server: made fifo\n");
@@ -19,18 +27,18 @@ int server_handshake(int *to_client) {
 		return -1;
 	}
 	printf("server: waiting for connection\n");
-	int fd = open("s", O_RDONLY);
+	int fd = print_error(open("s", O_RDONLY));
 	char name[HANDSHAKE_BUFFER_SIZE];
-	read(fd,name,HANDSHAKE_BUFFER_SIZE);
+	print_error(read(fd,name,HANDSHAKE_BUFFER_SIZE));
 	printf("server: connection established, deleting fifo\n");
 	remove("s");
 	printf("server: connecting to client\n");
-    *to_client = open(name,O_WRONLY,0666);
+  *to_client = print_error(open(name,O_WRONLY,0666));
 	char* buffer = ACK;
-	write(*to_client,buffer,HANDSHAKE_BUFFER_SIZE);
-	char returned[HANDSHAKE_BUFFER_SIZE];
-	//read(fd, returned, HANDSHAKE_BUFFER_SIZE); 
-  	return fd;
+	print_error(write(*to_client,buffer,HANDSHAKE_BUFFER_SIZE));
+	//char returned[HANDSHAKE_BUFFER_SIZE];
+	//read(fd, returned, HANDSHAKE_BUFFER_SIZE);
+  return fd;
 }
 
 
@@ -45,23 +53,23 @@ int server_handshake(int *to_client) {
   =========================*/
 int client_handshake(int *to_server) {
 	printf("client: creating private fifo\n");
-	mkfifo("ss", 0666);
+	print_error(mkfifo("ss", 0666));
   printf("client: connecting to server\n");
   while(access("s",F_OK)){
 	}
-	int fd = open("s",O_WRONLY,0666);
+	int fd = print_error(open("s",O_WRONLY,0666));
 	char * name = "ss";
-	write(fd,name,HANDSHAKE_BUFFER_SIZE);
+	print_error(write(fd,name,HANDSHAKE_BUFFER_SIZE));
 	char buffer[HANDSHAKE_BUFFER_SIZE];
-  int private_fifo = open("ss", O_RDONLY, 0666);
+  int private_fifo = print_error(open("ss", O_RDONLY, 0666));
 	printf("client: waiting for server to respond\n");
-	read(private_fifo, buffer, HANDSHAKE_BUFFER_SIZE);
+	print_error(read(private_fifo, buffer, HANDSHAKE_BUFFER_SIZE));
 	printf("client: buffer = %s\n",buffer);
 	if(!strcmp(buffer, ACK)){
 		printf("client: message recived\n");
-		remove("ss");
+		print_error(remove("ss"));
 		printf("client: send message to server\n");
-		write(fd,buffer,HANDSHAKE_BUFFER_SIZE);
+		print_error(write(fd,buffer,HANDSHAKE_BUFFER_SIZE));
 	}
 	*to_server = fd;
  	return private_fifo;
